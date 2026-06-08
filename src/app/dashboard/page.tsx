@@ -1,6 +1,9 @@
 import { getLocationById } from '@/lib/locations';
 import type { DailyResp, HourlyResp } from '@/lib/schema';
 
+import { AnalystCharts } from '@/components/charts/AnalystCharts';
+import { KpiCards } from '@/components/KpiCards';
+
 /**
  * Calculate default date range (upcoming 7 days)
  */
@@ -269,41 +272,28 @@ export default async function DashboardPage({
           <section className='space-y-6'>
             {/* Manager View - KPI Cards */}
             {role === 'manager' && (
-              <div className='rounded-lg bg-base-200 p-4'>
-                <h2 className='text-lg font-semibold mb-4'>Manager View</h2>
-                {/* TODO: Add KpiCards component
-                 * Component: src/components/KpiCards.tsx
-                 * Props: { data: CityWeatherData[] }
-                 * Purpose: Display KPI cards with average temperature, total precipitation, max wind speed
-                 * Features:
-                 *   - Single city: Show KPIs for that city
-                 *   - Multiple cities: Show side-by-side comparison
-                 *   - Alert badges for threshold violations
-                 */}
-                <div className='text-sm text-base-content/70 italic'>
-                  KpiCards component will be added here
-                </div>
-              </div>
+              <section aria-labelledby='manager-view-heading'>
+                <h2
+                  id='manager-view-heading'
+                  className='text-lg font-semibold mb-4'
+                >
+                  Manager View
+                </h2>
+                <KpiCards cities={weatherData} gran={gran} />
+              </section>
             )}
 
             {/* Analyst View - Charts */}
             {role === 'analyst' && (
-              <div className='rounded-lg bg-base-200 p-4'>
-                <h2 className='text-lg font-semibold mb-4'>Analyst View</h2>
-                {/* TODO: Add Charts components
-                 * Components: src/components/charts/*.tsx
-                 * Props: { data: CityWeatherData[], vars: string[] }
-                 * Purpose: Display interactive charts for each variable
-                 * Features:
-                 *   - Line charts for temperature, precipitation, wind speed
-                 *   - One chart per variable
-                 *   - Multiple cities overlaid on same chart
-                 *   - Chart animations on load and update
-                 */}
-                <div className='text-sm text-base-content/70 italic'>
-                  Charts components will be added here
-                </div>
-              </div>
+              <section aria-labelledby='analyst-view-heading'>
+                <h2
+                  id='analyst-view-heading'
+                  className='text-lg font-semibold mb-4'
+                >
+                  Analyst View
+                </h2>
+                <AnalystCharts cities={weatherData} gran={gran} vars={vars} />
+              </section>
             )}
 
             {/* Debug: Weather Data Summary */}
