@@ -154,6 +154,70 @@ export function detectAllAlerts(daily: DailyResp): WeatherAlert[] {
   return alerts;
 }
 
+export interface CityKpis {
+  avgTemperature: number;
+  totalPrecipitation: number;
+  maxWindSpeed: number;
+}
+
+/**
+ * Computes KPI metrics from hourly or daily weather data
+ */
+export function computeCityKpis(
+  data: HourlyResp | DailyResp,
+  gran: 'hourly' | 'daily'
+): CityKpis {
+  if (gran === 'hourly') {
+    const hourly = data as HourlyResp;
+    const hourlyData = hourly.hourly as Record<string, number[]>;
+    const temps = hourlyData.temperature_2m ?? [];
+    const precip = hourlyData.precipitation ?? [];
+    const wind = hourlyData.windspeed_10m ?? [];
+
+    const avgTemperature =
+      temps.length > 0 ? temps.reduce((a, b) => a + b, 0) / temps.length : 0;
+    const totalPrecipitation = precip.reduce((a, b) => a + b, 0);
+    const maxWindSpeed = wind.length > 0 ? Math.max(...wind) : 0;
+
+    return { avgTemperature, totalPrecipitation, maxWindSpeed };
+  }
+
+  const daily = data as DailyResp;
+  const dailyData = daily.daily as Record<string, number[]>;
+  const tempMax = dailyData.temperature_2m_max ?? [];
+  const tempMin = dailyData.temperature_2m_min ?? [];
+  const precip = dailyData.precipitation_sum ?? [];
+  const wind = dailyData.windspeed_10m_max ?? [];
+
+  const avgTemperature =
+    tempMax.length > 0
+      ? tempMax.reduce((sum, max, i) => {
+          const min = tempMin[i] ?? max;
+          return sum + (max + min) / 2;
+        }, 0) / tempMax.length
+      : 0;
+  const totalPrecipitation = precip.reduce((a, b) => a + b, 0);
+  const maxWindSpeed = wind.length > 0 ? Math.max(...wind) : 0;
+
+  return { avgTemperature, totalPrecipitation, maxWindSpeed };
+}
+
+/**
+ * Summarizes alerts to one entry per type (highest value)
+ */
+export function summarizeAlerts(alerts: WeatherAlert[]): WeatherAlert[] {
+  const byType = new Map<AlertType, WeatherAlert>();
+
+  for (const alert of alerts) {
+    const existing = byType.get(alert.type);
+    if (!existing || alert.value > existing.value) {
+      byType.set(alert.type, alert);
+    }
+  }
+
+  return Array.from(byType.values());
+}
+
 /**
  * Formats a date string for display in charts and UI
  * @param dateString - ISO date string (e.g., '2025-01-21' or '2025-01-21T12:00')

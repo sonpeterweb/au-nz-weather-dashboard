@@ -1,12 +1,14 @@
 import type { DailyResp, HourlyResp } from './schema';
 import {
   ALERT_THRESHOLDS,
+  computeCityKpis,
   detectAllAlerts,
   detectPrecipitationAlert,
   detectTemperatureAlert,
   detectWindAlert,
   formatDate,
   rainyDaysThisMonth,
+  summarizeAlerts,
   toSeries,
 } from './utils';
 
@@ -347,6 +349,62 @@ describe('utils', () => {
       const time2 = formatDate('2025-01-21T21:30:00', 'time');
       expect(time1).toContain('09:00');
       expect(time2).toContain('21:30');
+    });
+  });
+
+  describe('computeCityKpis', () => {
+    it('computes hourly KPIs', () => {
+      const hourly: HourlyResp = {
+        hourly: {
+          time: ['2025-01-21T00:00', '2025-01-21T01:00', '2025-01-21T02:00'],
+          temperature_2m: [20, 22, 24],
+          precipitation: [1, 2, 3],
+          windspeed_10m: [10, 15, 20],
+        },
+      };
+
+      const kpis = computeCityKpis(hourly, 'hourly');
+      expect(kpis.avgTemperature).toBe(22);
+      expect(kpis.totalPrecipitation).toBe(6);
+      expect(kpis.maxWindSpeed).toBe(20);
+    });
+
+    it('computes daily KPIs', () => {
+      const daily: DailyResp = {
+        daily: {
+          time: ['2025-01-21', '2025-01-22'],
+          temperature_2m_max: [30, 34],
+          temperature_2m_min: [20, 24],
+          precipitation_sum: [10, 20],
+          windspeed_10m_max: [15, 25],
+        },
+      };
+
+      const kpis = computeCityKpis(daily, 'daily');
+      expect(kpis.avgTemperature).toBe(27);
+      expect(kpis.totalPrecipitation).toBe(30);
+      expect(kpis.maxWindSpeed).toBe(25);
+    });
+  });
+
+  describe('summarizeAlerts', () => {
+    it('keeps highest value alert per type', () => {
+      const alerts = detectAllAlerts({
+        daily: {
+          time: ['2025-01-21', '2025-01-22'],
+          temperature_2m_max: [36, 38],
+          precipitation_sum: [55, 60],
+          windspeed_10m_max: [30, 35],
+        },
+      });
+
+      const summarized = summarizeAlerts(alerts);
+      expect(summarized).toHaveLength(3);
+      expect(summarized.find((a) => a.type === 'temperature')?.value).toBe(38);
+      expect(summarized.find((a) => a.type === 'precipitation')?.value).toBe(
+        60
+      );
+      expect(summarized.find((a) => a.type === 'wind')?.value).toBe(35);
     });
   });
 
