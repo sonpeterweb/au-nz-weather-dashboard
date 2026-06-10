@@ -16,6 +16,44 @@ const customJestConfig = {
 
   testEnvironment: 'jest-environment-jsdom',
 
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/',
+    '<rootDir>/e2e/',
+  ],
+
+  collectCoverageFrom: [
+    'src/lib/chart-utils.ts',
+    'src/lib/dashboard-params.ts',
+    'src/lib/locations.ts',
+    'src/lib/open-meteo.ts',
+    'src/lib/schema.ts',
+    'src/lib/theme.ts',
+    'src/lib/utils.ts',
+    'src/app/api/weather/**/*.{ts,tsx}',
+    'src/components/AlertBadge.tsx',
+    'src/components/ErrorMessage.tsx',
+    'src/components/FilterBar.tsx',
+    'src/components/KpiCards.tsx',
+    'src/components/RoleToggle.tsx',
+    'src/components/ThemeToggle.tsx',
+    'src/components/Skeleton.tsx',
+    'src/components/DashboardSkeletons.tsx',
+    'src/components/charts/**/*.{ts,tsx}',
+    'src/hooks/useDashboardSearchParams.ts',
+    '!**/*.test.{ts,tsx}',
+    '!**/*.mock.{ts,tsx}',
+  ],
+
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+
   /**
    * Absolute imports and Module Path Aliases
    */

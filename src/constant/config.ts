@@ -1,7 +1,6 @@
 export const siteConfig = {
-  title: 'Next.js + Tailwind CSS + TypeScript Starter',
+  title: 'AU/NZ Weather Dashboard',
   description:
-    'A starter for Next.js, Tailwind CSS, and TypeScript with Absolute Import, Seo, Link component, pre-configured with Husky',
-  /** Without additional '/' on the end, e.g. https://theodorusclarence.com */
-  url: 'https://tsnext-tw.thcl.dev',
+    'Monitor weather conditions across Australia and New Zealand with manager KPIs and analyst charts powered by Open-Meteo.',
+  url: process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000',
 };

@@ -92,6 +92,17 @@ describe('chart-utils', () => {
       expect(panels[0].data[0]).toHaveProperty('sydney__temperature_2m', 20);
     });
 
+    it('ignores unknown variables when building panels', () => {
+      const panels = buildChartPanels(
+        [{ id: 'auckland', label: 'Auckland', data: hourlyData }],
+        'hourly',
+        ['temperature_2m', 'unknown_var']
+      );
+
+      expect(panels).toHaveLength(1);
+      expect(panels[0].type).toBe('line');
+    });
+
     it('builds large datasets quickly', () => {
       const largeHourly: HourlyResp = {
         hourly: {

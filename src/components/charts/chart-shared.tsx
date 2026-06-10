@@ -21,7 +21,7 @@ export function ChartCard({ title, unit, children }: ChartCardProps) {
           <h3 className='card-title text-base'>{title}</h3>
           <p className='text-sm text-base-content/70'>Unit: {unit}</p>
         </div>
-        <div className='h-80 w-full'>{children}</div>
+        <div className='h-80 min-h-80 w-full min-w-0'>{children}</div>
       </div>
     </div>
   );

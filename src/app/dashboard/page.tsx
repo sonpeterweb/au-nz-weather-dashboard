@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { parseDashboardParams } from '@/lib/dashboard-params';
+
+export const metadata: Metadata = {
+  title: 'Weather Dashboard',
+  description:
+    'Monitor AU/NZ weather with manager KPIs, analyst charts, and shareable URL filters.',
+};
 
 import { DashboardControls } from '@/components/DashboardControls';
 import { DashboardHeader } from '@/components/DashboardHeader';
