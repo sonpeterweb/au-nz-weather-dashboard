@@ -1,3 +1,6 @@
+import dynamic from 'next/dynamic';
+import { headers } from 'next/headers';
+
 import type {
   DashboardGranularity,
   DashboardRole,
@@ -5,9 +8,17 @@ import type {
 import { getLocationById } from '@/lib/locations';
 import type { DailyResp, HourlyResp } from '@/lib/schema';
 
-import { AnalystCharts } from '@/components/charts/AnalystCharts';
+import { ChartsSkeleton } from '@/components/DashboardSkeletons';
 import { ErrorMessage, ErrorMessageList } from '@/components/ErrorMessage';
 import { KpiCards } from '@/components/KpiCards';
+
+const AnalystCharts = dynamic(
+  () =>
+    import('@/components/charts/AnalystCharts').then((mod) => ({
+      default: mod.AnalystCharts,
+    })),
+  { loading: () => <ChartsSkeleton /> }
+);
 
 interface CityWeatherData {
   id: string;
@@ -23,9 +34,17 @@ interface CityFetchResult {
   data?: CityWeatherData;
 }
 
-function getBaseUrl(): string {
+async function getBaseUrl(): Promise<string> {
   if (process.env.NEXT_PUBLIC_BASE_URL) {
     return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  const headersList = await headers();
+  const host = headersList.get('host');
+
+  if (host) {
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${host}`;
   }
 
   return process.env.NODE_ENV === 'production'
@@ -54,7 +73,7 @@ async function fetchCityWeather(
     end,
   });
 
-  const url = `${getBaseUrl()}/api/weather?${qs.toString()}`;
+  const url = `${await getBaseUrl()}/api/weather?${qs.toString()}`;
 
   try {
     const response = await fetch(url, {

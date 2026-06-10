@@ -46,4 +46,22 @@ describe('ThemeToggle', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('cupcake');
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('cupcake');
   });
+
+  it('restores stored theme on mount', async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, 'cupcake');
+    render(<ThemeToggle />);
+
+    expect(await screen.findByLabelText('Select theme')).toHaveValue('cupcake');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('cupcake');
+  });
+
+  it('switches back to light theme from dark via swap', async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+    render(<ThemeToggle />);
+    await screen.findByLabelText('Select theme');
+
+    fireEvent.click(screen.getByLabelText('Toggle light and dark theme'));
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
 });

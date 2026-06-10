@@ -76,4 +76,36 @@ describe('FilterBar', () => {
     );
     expect(mockPush).not.toHaveBeenCalled();
   });
+
+  it('updates URL when a valid date range is selected', () => {
+    render(<FilterBar {...defaultProps} />);
+
+    fireEvent.change(screen.getByLabelText('End date'), {
+      target: { value: '2025-01-10' },
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining('end=2025-01-10'),
+      { scroll: false }
+    );
+  });
+
+  it('does not allow deselecting the last city', () => {
+    render(<FilterBar {...defaultProps} />);
+
+    fireEvent.click(screen.getByLabelText('Auckland, NZ'));
+
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('updates variables in the URL when toggled', () => {
+    render(<FilterBar {...defaultProps} />);
+
+    fireEvent.click(screen.getByLabelText('Precipitation'));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining('vars=temperature_2m%2Cwindspeed_10m'),
+      { scroll: false }
+    );
+  });
 });

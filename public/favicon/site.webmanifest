@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "short_name": "",
+  "name": "AU/NZ Weather Dashboard",
+  "short_name": "Weather",
   "icons": [
     {
       "src": "/favicon/android-chrome-192x192.png",

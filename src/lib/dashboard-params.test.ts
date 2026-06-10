@@ -83,6 +83,29 @@ describe('dashboard-params', () => {
 
       expect(parsed.dateError).toContain('30 days');
     });
+
+    it('warns on invalid granularity and defaults to hourly', () => {
+      const parsed = parseDashboardParams({ gran: 'weekly' });
+
+      expect(parsed.gran).toBe('hourly');
+      expect(parsed.paramWarnings[0]).toContain('Invalid granularity');
+    });
+
+    it('falls back to default variables when all requested vars are invalid', () => {
+      const parsed = parseDashboardParams({
+        gran: 'hourly',
+        vars: 'precipitation_sum,temperature_2m_max',
+      });
+
+      expect(parsed.vars).toEqual([
+        'temperature_2m',
+        'precipitation',
+        'windspeed_10m',
+      ]);
+      expect(parsed.paramWarnings).toContain(
+        'No valid variables selected. Using default variables.'
+      );
+    });
   });
 
   describe('buildDashboardSearchParams', () => {
