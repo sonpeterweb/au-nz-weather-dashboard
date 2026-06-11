@@ -2,7 +2,7 @@ import type { DailyResp, HourlyResp } from '@/lib/schema';
 import {
   type CityKpis,
   computeCityKpis,
-  detectAllAlerts,
+  detectAlerts,
   summarizeAlerts,
 } from '@/lib/utils';
 
@@ -34,10 +34,7 @@ function buildCityEntries(
     id: city.id,
     label: city.label,
     kpis: computeCityKpis(city.data, gran),
-    alerts:
-      gran === 'daily'
-        ? summarizeAlerts(detectAllAlerts(city.data as DailyResp))
-        : [],
+    alerts: summarizeAlerts(detectAlerts(city.data, gran)),
   }));
 }
 

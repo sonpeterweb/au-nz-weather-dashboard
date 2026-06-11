@@ -151,4 +151,41 @@
   .animated-underline:focus-visible {
     background-size: 0 2px, 100% 2px;
   }
+
+  /* DaisyUI calendar: today uses text color only (no background) */
+  .react-day-picker .rdp-today:not(.rdp-outside) .rdp-day_button {
+    background-color: transparent !important;
+    color: var(--color-primary) !important;
+    font-weight: 600;
+  }
+
+  /* DaisyUI calendar: primary blue selection with white date text */
+  .react-day-picker .rdp-selected .rdp-day_button,
+  .react-day-picker .rdp-range_start .rdp-day_button,
+  .react-day-picker .rdp-range_end .rdp-day_button,
+  .react-day-picker .rdp-today.rdp-range_start .rdp-day_button,
+  .react-day-picker .rdp-today.rdp-range_end .rdp-day_button {
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
+  }
+
+  .react-day-picker .rdp-range_middle {
+    background-color: color-mix(
+      in oklab,
+      var(--color-primary) 20%,
+      transparent
+    );
+  }
+
+  .react-day-picker .rdp-range_middle .rdp-day_button {
+    color: var(--color-primary) !important;
+    background-color: transparent !important;
+  }
+
+  .react-day-picker .rdp-selected .rdp-day_button:hover,
+  .react-day-picker .rdp-range_start .rdp-day_button:hover,
+  .react-day-picker .rdp-range_end .rdp-day_button:hover {
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
+  }
 }

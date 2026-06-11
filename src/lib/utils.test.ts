@@ -2,7 +2,9 @@ import type { DailyResp, HourlyResp } from './schema';
 import {
   ALERT_THRESHOLDS,
   computeCityKpis,
+  detectAlerts,
   detectAllAlerts,
+  detectAllAlertsFromHourly,
   detectPrecipitationAlert,
   detectTemperatureAlert,
   detectWindAlert,
@@ -196,10 +198,10 @@ describe('utils', () => {
       const alert = detectPrecipitationAlert(55);
       expect(alert).not.toBeNull();
       expect(alert?.type).toBe('precipitation');
-      expect(alert?.severity).toBe('danger');
+      expect(alert?.severity).toBe('warning');
       expect(alert?.value).toBe(55);
       expect(alert?.threshold).toBe(ALERT_THRESHOLDS.PRECIPITATION_HIGH);
-      expect(alert?.message).toContain('55.0mm/day');
+      expect(alert?.message).toContain('Heavy rainfall: 55.0mm/day');
     });
 
     it('should return null when precipitation is below threshold', () => {
@@ -304,6 +306,53 @@ describe('utils', () => {
 
       const alerts = detectAllAlerts(daily);
       expect(alerts).toHaveLength(0);
+    });
+  });
+
+  describe('detectAllAlertsFromHourly', () => {
+    it('should detect rainfall, wind, and temperature alerts from hourly data', () => {
+      const hourly: HourlyResp = {
+        hourly: {
+          time: [
+            '2025-01-21T00:00',
+            '2025-01-21T01:00',
+            '2025-01-21T02:00',
+            '2025-01-22T00:00',
+          ],
+          temperature_2m: [36, 20, 18, 22],
+          precipitation: [20, 20, 15, 5],
+          windspeed_10m: [30, 12, 10, 8],
+        },
+      };
+
+      const alerts = detectAllAlertsFromHourly(hourly);
+      expect(alerts.some((alert) => alert.type === 'temperature')).toBe(true);
+      expect(alerts.some((alert) => alert.type === 'precipitation')).toBe(true);
+      expect(alerts.some((alert) => alert.type === 'wind')).toBe(true);
+    });
+  });
+
+  describe('detectAlerts', () => {
+    it('should route hourly and daily data to the correct detector', () => {
+      const hourly: HourlyResp = {
+        hourly: {
+          time: ['2025-01-21T00:00'],
+          temperature_2m: [36],
+          precipitation: [0],
+          windspeed_10m: [30],
+        },
+      };
+      const daily: DailyResp = {
+        daily: {
+          time: ['2025-01-21'],
+          temperature_2m_max: [36],
+          precipitation_sum: [55],
+          windspeed_10m_max: [30],
+        },
+      };
+
+      expect(detectAlerts(hourly, 'hourly').length).toBeGreaterThan(0);
+      expect(detectAlerts(daily, 'daily').length).toBeGreaterThan(0);
     });
   });
 

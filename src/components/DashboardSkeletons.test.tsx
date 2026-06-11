@@ -26,8 +26,8 @@ describe('DashboardSkeletons', () => {
     expect(screen.getByLabelText('Loading weather charts')).toBeInTheDocument();
   });
 
-  it('renders role-specific weather skeleton', () => {
-    render(<WeatherContentSkeleton role='analyst' />);
+  it('renders view-specific weather skeleton', () => {
+    render(<WeatherContentSkeleton view='charts' />);
     expect(screen.getByLabelText('Loading weather data')).toBeInTheDocument();
     expect(screen.getByLabelText('Loading weather charts')).toBeInTheDocument();
   });

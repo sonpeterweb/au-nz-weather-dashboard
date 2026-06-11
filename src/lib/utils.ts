@@ -94,8 +94,8 @@ export function detectPrecipitationAlert(
   if (precipitation > ALERT_THRESHOLDS.PRECIPITATION_HIGH) {
     return {
       type: 'precipitation',
-      severity: 'danger',
-      message: `Heavy precipitation: ${precipitation.toFixed(1)}mm/day`,
+      severity: 'warning',
+      message: `Heavy rainfall: ${precipitation.toFixed(1)}mm/day`,
       value: precipitation,
       threshold: ALERT_THRESHOLDS.PRECIPITATION_HIGH,
     };
@@ -152,6 +152,53 @@ export function detectAllAlerts(daily: DailyResp): WeatherAlert[] {
   });
 
   return alerts;
+}
+
+/**
+ * Detects weather alerts from hourly data by checking peaks and daily rainfall totals.
+ */
+export function detectAllAlertsFromHourly(hourly: HourlyResp): WeatherAlert[] {
+  const alerts: WeatherAlert[] = [];
+  const hourlyData = hourly.hourly as Record<string, number[]>;
+  const temps = hourlyData.temperature_2m ?? [];
+  const precip = hourlyData.precipitation ?? [];
+  const wind = hourlyData.windspeed_10m ?? [];
+
+  if (temps.length > 0) {
+    const alert = detectTemperatureAlert(Math.max(...temps));
+    if (alert) alerts.push(alert);
+  }
+
+  if (wind.length > 0) {
+    const alert = detectWindAlert(Math.max(...wind));
+    if (alert) alerts.push(alert);
+  }
+
+  const dailyPrecip = new Map<string, number>();
+  hourly.hourly.time.forEach((time, index) => {
+    const day = time.slice(0, 10);
+    const amount = precip[index] ?? 0;
+    dailyPrecip.set(day, (dailyPrecip.get(day) ?? 0) + amount);
+  });
+
+  for (const total of Array.from(dailyPrecip.values())) {
+    const alert = detectPrecipitationAlert(total);
+    if (alert) alerts.push(alert);
+  }
+
+  return alerts;
+}
+
+/**
+ * Detects weather alerts for hourly or daily weather responses.
+ */
+export function detectAlerts(
+  data: HourlyResp | DailyResp,
+  gran: 'hourly' | 'daily'
+): WeatherAlert[] {
+  return gran === 'hourly'
+    ? detectAllAlertsFromHourly(data as HourlyResp)
+    : detectAllAlerts(data as DailyResp);
 }
 
 export interface CityKpis {

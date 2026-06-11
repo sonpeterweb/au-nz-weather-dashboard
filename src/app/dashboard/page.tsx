@@ -3,10 +3,11 @@ import { Suspense } from 'react';
 
 import { parseDashboardParams } from '@/lib/dashboard-params';
 
+import { siteConfig } from '@/constant/config';
+
 export const metadata: Metadata = {
   title: 'Weather Dashboard',
-  description:
-    'Monitor AU/NZ weather with manager KPIs, analyst charts, and shareable URL filters.',
+  description: siteConfig.description,
 };
 
 import { DashboardControls } from '@/components/DashboardControls';
@@ -64,7 +65,7 @@ export default async function DashboardPage({
 
         <Suspense fallback={<ControlsSkeleton />}>
           <DashboardControls
-            role={parsed.role}
+            view={parsed.view}
             cities={
               parsed.validCities.length > 0 ? parsed.validCities : ['auckland']
             }
@@ -92,14 +93,14 @@ export default async function DashboardPage({
             variant='error'
           />
         ) : (
-          <Suspense fallback={<WeatherContentSkeleton role={parsed.role} />}>
+          <Suspense fallback={<WeatherContentSkeleton view={parsed.view} />}>
             <DashboardWeatherContent
               cities={parsed.validCities}
               gran={parsed.gran}
               vars={parsed.vars}
               start={parsed.start}
               end={parsed.end}
-              role={parsed.role}
+              view={parsed.view}
             />
           </Suspense>
         )}

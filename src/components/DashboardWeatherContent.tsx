@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 
 import type {
   DashboardGranularity,
-  DashboardRole,
+  DashboardView,
 } from '@/lib/dashboard-params';
 import { getLocationById } from '@/lib/locations';
 import type { DailyResp, HourlyResp } from '@/lib/schema';
@@ -105,7 +105,7 @@ interface DashboardWeatherContentProps {
   vars: string[];
   start: string;
   end: string;
-  role: DashboardRole;
+  view: DashboardView;
 }
 
 export async function DashboardWeatherContent({
@@ -114,7 +114,7 @@ export async function DashboardWeatherContent({
   vars,
   start,
   end,
-  role,
+  view,
 }: DashboardWeatherContentProps) {
   const results = await Promise.all(
     cities.map((cityId) => fetchCityWeather(cityId, gran, vars, start, end))
@@ -155,19 +155,19 @@ export async function DashboardWeatherContent({
     <section className='space-y-6 transition-opacity duration-300'>
       <ErrorMessageList messages={fetchErrors} />
 
-      {role === 'manager' && (
-        <section aria-labelledby='manager-view-heading'>
-          <h2 id='manager-view-heading' className='text-lg font-semibold mb-4'>
-            Manager View
+      {view === 'summary' && (
+        <section aria-labelledby='summary-view-heading'>
+          <h2 id='summary-view-heading' className='text-lg font-semibold mb-4'>
+            Summary
           </h2>
           <KpiCards cities={weatherData} gran={gran} />
         </section>
       )}
 
-      {role === 'analyst' && (
-        <section aria-labelledby='analyst-view-heading'>
-          <h2 id='analyst-view-heading' className='text-lg font-semibold mb-4'>
-            Analyst View
+      {view === 'charts' && (
+        <section aria-labelledby='charts-view-heading'>
+          <h2 id='charts-view-heading' className='text-lg font-semibold mb-4'>
+            Charts
           </h2>
           <AnalystCharts cities={weatherData} gran={gran} vars={vars} />
         </section>

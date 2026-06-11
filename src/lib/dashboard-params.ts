@@ -1,9 +1,9 @@
 import { isValidLocationId } from '@/lib/locations';
 
-export type DashboardRole = 'manager' | 'analyst';
+export type DashboardView = 'summary' | 'charts';
 export type DashboardGranularity = 'hourly' | 'daily';
 
-export const DASHBOARD_ROLES: DashboardRole[] = ['manager', 'analyst'];
+export const DASHBOARD_VIEWS: DashboardView[] = ['summary', 'charts'];
 export const DASHBOARD_GRANULARITIES: DashboardGranularity[] = [
   'hourly',
   'daily',
@@ -125,7 +125,7 @@ export function buildDashboardSearchParams(
 }
 
 export interface ParsedDashboardParams {
-  role: DashboardRole;
+  view: DashboardView;
   gran: DashboardGranularity;
   cities: string[];
   validCities: string[];
@@ -150,13 +150,13 @@ export function parseDashboardParams(
   const paramWarnings: string[] = [];
   const defaultDateRange = getDefaultDateRange();
 
-  const roleParam = params.role ? String(params.role) : 'manager';
-  const role = DASHBOARD_ROLES.includes(roleParam as DashboardRole)
-    ? (roleParam as DashboardRole)
-    : 'manager';
-  if (params.role && roleParam !== role) {
+  const viewParam = params.view ? String(params.view) : 'summary';
+  const view = DASHBOARD_VIEWS.includes(viewParam as DashboardView)
+    ? (viewParam as DashboardView)
+    : 'summary';
+  if (params.view && viewParam !== view) {
     paramWarnings.push(
-      `Invalid role "${roleParam}". Using manager view instead.`
+      `Invalid view "${viewParam}". Using summary view instead.`
     );
   }
 
@@ -209,7 +209,7 @@ export function parseDashboardParams(
   const dateValidation = validateDateRange(start, end);
 
   return {
-    role,
+    view,
     gran,
     cities,
     validCities,
