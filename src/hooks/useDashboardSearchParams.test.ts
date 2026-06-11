@@ -7,7 +7,7 @@ const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   usePathname: () => '/dashboard',
-  useSearchParams: () => new URLSearchParams('role=manager&city=auckland'),
+  useSearchParams: () => new URLSearchParams('view=summary&city=auckland'),
 }));
 
 describe('useDashboardSearchParams', () => {
@@ -19,12 +19,12 @@ describe('useDashboardSearchParams', () => {
     const { result } = renderHook(() => useDashboardSearchParams());
 
     result.current.updateParams({
-      role: 'analyst',
+      view: 'charts',
       city: ['auckland', 'sydney'],
     });
 
     expect(mockPush).toHaveBeenCalledWith(
-      '/dashboard?role=analyst&city=auckland%2Csydney',
+      '/dashboard?view=charts&city=auckland%2Csydney',
       { scroll: false }
     );
   });

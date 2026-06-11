@@ -35,7 +35,7 @@ const customJestConfig = {
     'src/components/ErrorMessage.tsx',
     'src/components/FilterBar.tsx',
     'src/components/KpiCards.tsx',
-    'src/components/RoleToggle.tsx',
+    'src/components/ViewToggle.tsx',
     'src/components/ThemeToggle.tsx',
     'src/components/Skeleton.tsx',
     'src/components/DashboardSkeletons.tsx',

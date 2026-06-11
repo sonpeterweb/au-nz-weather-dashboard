@@ -4,6 +4,10 @@ import '@testing-library/jest-dom/extend-expect';
 // eslint-disable-next-line no-undef
 jest.mock('next/router', () => require('next-router-mock'));
 
+// Mock react-day-picker for Jest (ESM-only dependency).
+// eslint-disable-next-line no-undef
+jest.mock('react-day-picker');
+
 // Polyfill Request/Response for Next.js App Router API route tests
 // Node 18+ has these, but Jest environment may not expose them
 if (typeof global.Request === 'undefined') {

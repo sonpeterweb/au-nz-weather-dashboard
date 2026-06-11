@@ -6,11 +6,12 @@ import {
   type DashboardGranularity,
   getDefaultVariables,
   getVariableOptions,
-  validateDateRange,
 } from '@/lib/dashboard-params';
-import { PRESETS } from '@/lib/locations';
+import { AU_CITY_IDS, NZ_CITY_IDS, PRESETS } from '@/lib/locations';
 import { cn } from '@/lib/utils';
 import { useDashboardSearchParams } from '@/hooks/useDashboardSearchParams';
+
+import { DateRangeCalendar } from '@/components/DateRangeCalendar';
 
 interface FilterBarProps {
   selectedCities: string[];
@@ -20,10 +21,39 @@ interface FilterBarProps {
   end: string;
 }
 
-const cityOptions = Object.entries(PRESETS).map(([id, location]) => ({
-  id,
-  label: location.label,
-}));
+const cityGroups = [
+  { title: 'Australia', ids: AU_CITY_IDS },
+  { title: 'New Zealand', ids: NZ_CITY_IDS },
+] as const;
+
+function CityCheckbox({
+  cityId,
+  isSelected,
+  onToggle,
+}: {
+  cityId: string;
+  isSelected: boolean;
+  onToggle: (cityId: string, checked: boolean) => void;
+}) {
+  const location = PRESETS[cityId];
+
+  return (
+    <label
+      className={cn(
+        'label cursor-pointer gap-2 rounded-lg border px-3 py-2',
+        isSelected ? 'border-primary bg-primary/10' : 'border-base-300'
+      )}
+    >
+      <input
+        type='checkbox'
+        className='checkbox checkbox-sm checkbox-primary'
+        checked={isSelected}
+        onChange={(event) => onToggle(cityId, event.target.checked)}
+      />
+      <span className='label-text text-sm'>{location.label}</span>
+    </label>
+  );
+}
 
 export function FilterBar({
   selectedCities,
@@ -52,6 +82,13 @@ export function FilterBar({
     updateParams({ city: nextCities });
   };
 
+  const handleResetCities = () => {
+    updateParams({ city: ['auckland'] });
+  };
+
+  const isDefaultCitySelection =
+    selectedCities.length === 1 && selectedCities[0] === 'auckland';
+
   const handleGranularityChange = (nextGranularity: DashboardGranularity) => {
     if (nextGranularity === granularity) {
       return;
@@ -75,129 +112,109 @@ export function FilterBar({
     updateParams({ vars: nextVars });
   };
 
-  const handleDateChange = (field: 'start' | 'end', value: string) => {
-    const nextStart = field === 'start' ? value : start;
-    const nextEnd = field === 'end' ? value : end;
-    const validation = validateDateRange(nextStart, nextEnd);
-
-    if (!validation.isValid) {
-      setDateError(validation.error ?? 'Invalid date range');
-      return;
-    }
-
+  const handleRangeChange = (range: { start: string; end: string }) => {
     setDateError(null);
-    updateParams({ start: nextStart, end: nextEnd });
+    updateParams({ start: range.start, end: range.end });
   };
 
   return (
-    <div className='space-y-4'>
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4'>
-        <fieldset className='space-y-2'>
-          <legend className='text-sm font-semibold'>Cities</legend>
-          <div className='flex flex-wrap gap-2'>
-            {cityOptions.map((city) => {
-              const isSelected = selectedCities.includes(city.id);
-              return (
-                <label
-                  key={city.id}
-                  className={cn(
-                    'label cursor-pointer gap-2 rounded-lg border px-3 py-2',
-                    isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-base-300'
-                  )}
-                >
-                  <input
-                    type='checkbox'
-                    className='checkbox checkbox-sm checkbox-primary'
-                    checked={isSelected}
-                    onChange={(event) =>
-                      handleCityToggle(city.id, event.target.checked)
-                    }
-                  />
-                  <span className='label-text text-sm'>{city.label}</span>
-                </label>
-              );
-            })}
+    <div className='grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start'>
+      <div className='space-y-4'>
+        <fieldset className='space-y-3'>
+          <div className='flex flex-wrap items-center justify-between gap-2'>
+            <legend className='text-sm font-semibold'>Cities</legend>
+            <button
+              type='button'
+              className='btn btn-ghost btn-xs'
+              aria-label='Reset cities to Auckland only'
+              disabled={isDefaultCitySelection}
+              onClick={handleResetCities}
+            >
+              Reset cities
+            </button>
           </div>
+          {cityGroups.map((group) => (
+            <div key={group.title} className='space-y-2'>
+              <p className='text-xs font-medium uppercase tracking-wide text-base-content/70'>
+                {group.title}
+              </p>
+              <div className='flex flex-wrap gap-2'>
+                {group.ids.map((cityId) => (
+                  <CityCheckbox
+                    key={cityId}
+                    cityId={cityId}
+                    isSelected={selectedCities.includes(cityId)}
+                    onToggle={handleCityToggle}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </fieldset>
 
-        <fieldset className='space-y-2'>
-          <legend className='text-sm font-semibold'>Granularity</legend>
-          <select
-            className='select select-bordered select-sm w-full'
-            value={granularity}
-            aria-label='Data granularity'
-            onChange={(event) =>
-              handleGranularityChange(
-                event.target.value as DashboardGranularity
-              )
-            }
-          >
-            <option value='hourly'>Hourly</option>
-            <option value='daily'>Daily</option>
-          </select>
-        </fieldset>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <fieldset className='space-y-2'>
+            <legend className='text-sm font-semibold'>Granularity</legend>
+            <select
+              className='select select-bordered select-sm w-full'
+              value={granularity}
+              aria-label='Data granularity'
+              onChange={(event) =>
+                handleGranularityChange(
+                  event.target.value as DashboardGranularity
+                )
+              }
+            >
+              <option value='hourly'>Hourly</option>
+              <option value='daily'>Daily</option>
+            </select>
+          </fieldset>
 
-        <fieldset className='space-y-2 md:col-span-2 xl:col-span-2'>
-          <legend className='text-sm font-semibold'>Variables</legend>
-          <div className='flex flex-wrap gap-2'>
-            {variableOptions.map((variable) => {
-              const isSelected = vars.includes(variable.id);
-              return (
-                <label
-                  key={variable.id}
-                  className={cn(
-                    'label cursor-pointer gap-2 rounded-lg border px-3 py-2',
-                    isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-base-300'
-                  )}
-                >
-                  <input
-                    type='checkbox'
-                    className='checkbox checkbox-sm checkbox-primary'
-                    checked={isSelected}
-                    onChange={(event) =>
-                      handleVariableToggle(variable.id, event.target.checked)
-                    }
-                  />
-                  <span className='label-text text-sm'>{variable.label}</span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+          <fieldset className='space-y-2'>
+            <legend className='text-sm font-semibold'>Variables</legend>
+            <div className='flex flex-wrap gap-2'>
+              {variableOptions.map((variable) => {
+                const isSelected = vars.includes(variable.id);
+                return (
+                  <label
+                    key={variable.id}
+                    className={cn(
+                      'label cursor-pointer gap-2 rounded-lg border px-3 py-2',
+                      isSelected
+                        ? 'border-primary bg-primary/10'
+                        : 'border-base-300'
+                    )}
+                  >
+                    <input
+                      type='checkbox'
+                      className='checkbox checkbox-sm checkbox-primary'
+                      checked={isSelected}
+                      onChange={(event) =>
+                        handleVariableToggle(variable.id, event.target.checked)
+                      }
+                    />
+                    <span className='label-text text-sm'>{variable.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-        <label className='form-control w-full'>
-          <span className='label-text mb-1 font-semibold'>Start date</span>
-          <input
-            type='date'
-            className='input input-bordered input-sm w-full'
-            value={start}
-            aria-label='Start date'
-            onChange={(event) => handleDateChange('start', event.target.value)}
-          />
-        </label>
-        <label className='form-control w-full'>
-          <span className='label-text mb-1 font-semibold'>End date</span>
-          <input
-            type='date'
-            className='input input-bordered input-sm w-full'
-            value={end}
-            aria-label='End date'
-            onChange={(event) => handleDateChange('end', event.target.value)}
-          />
-        </label>
+      <div className='xl:sticky xl:top-4 xl:w-[min(100%,20rem)]'>
+        <DateRangeCalendar
+          start={start}
+          end={end}
+          onRangeChange={handleRangeChange}
+          onError={setDateError}
+        />
+        {dateError && (
+          <p className='mt-2 text-sm text-error' role='alert'>
+            {dateError}
+          </p>
+        )}
       </div>
-
-      {dateError && (
-        <p className='text-sm text-error' role='alert'>
-          {dateError}
-        </p>
-      )}
     </div>
   );
 }

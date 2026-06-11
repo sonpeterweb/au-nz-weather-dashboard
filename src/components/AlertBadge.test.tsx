@@ -15,9 +15,17 @@ const temperatureAlert: WeatherAlert = {
 const windAlert: WeatherAlert = {
   type: 'wind',
   severity: 'warning',
-  message: 'High wind speed: 30.0km/h',
+  message: 'Strong winds: 30.0km/h',
   value: 30,
   threshold: 25,
+};
+
+const rainfallAlert: WeatherAlert = {
+  type: 'precipitation',
+  severity: 'warning',
+  message: 'Heavy rainfall: 55.0mm/day',
+  value: 55,
+  threshold: 50,
 };
 
 describe('AlertBadge', () => {
@@ -40,6 +48,14 @@ describe('AlertBadge', () => {
 
     const badge = screen.getByRole('status');
     expect(badge).toHaveClass('badge-warning');
+  });
+
+  it('applies warning styling for rainfall alerts', () => {
+    render(<AlertBadge alert={rainfallAlert} />);
+
+    const badge = screen.getByRole('status');
+    expect(badge).toHaveClass('badge-warning');
+    expect(screen.getByText('Heavy rainfall: 55.0mm/day')).toBeInTheDocument();
   });
 
   it('exposes accessible label', () => {

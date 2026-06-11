@@ -58,11 +58,11 @@ describe('dashboard-params', () => {
       expect(parsed.invalidCities).toEqual(['invalid-city']);
     });
 
-    it('warns on invalid role and defaults to manager', () => {
-      const parsed = parseDashboardParams({ role: 'admin' });
+    it('warns on invalid view and defaults to summary', () => {
+      const parsed = parseDashboardParams({ view: 'admin' });
 
-      expect(parsed.role).toBe('manager');
-      expect(parsed.paramWarnings[0]).toContain('Invalid role');
+      expect(parsed.view).toBe('summary');
+      expect(parsed.paramWarnings[0]).toContain('Invalid view');
     });
 
     it('filters unsupported variables for granularity', () => {
@@ -111,22 +111,22 @@ describe('dashboard-params', () => {
   describe('buildDashboardSearchParams', () => {
     it('updates comma-separated params', () => {
       const params = buildDashboardSearchParams(
-        new URLSearchParams('role=manager&city=auckland'),
-        { city: ['auckland', 'sydney'], role: 'analyst' }
+        new URLSearchParams('view=summary&city=auckland'),
+        { city: ['auckland', 'sydney'], view: 'charts' }
       );
 
-      expect(params.get('role')).toBe('analyst');
+      expect(params.get('view')).toBe('charts');
       expect(params.get('city')).toBe('auckland,sydney');
     });
 
     it('removes params when value is empty', () => {
       const params = buildDashboardSearchParams(
-        new URLSearchParams('role=manager&start=2025-01-01'),
+        new URLSearchParams('view=summary&start=2025-01-01'),
         { start: undefined }
       );
 
       expect(params.get('start')).toBeNull();
-      expect(params.get('role')).toBe('manager');
+      expect(params.get('view')).toBe('summary');
     });
   });
 });

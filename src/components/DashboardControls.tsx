@@ -2,14 +2,14 @@
 
 import type {
   DashboardGranularity,
-  DashboardRole,
+  DashboardView,
 } from '@/lib/dashboard-params';
 
 import { FilterBar } from '@/components/FilterBar';
-import { RoleToggle } from '@/components/RoleToggle';
+import { ViewToggle } from '@/components/ViewToggle';
 
 interface DashboardControlsProps {
-  role: DashboardRole;
+  view: DashboardView;
   cities: string[];
   gran: DashboardGranularity;
   vars: string[];
@@ -18,7 +18,7 @@ interface DashboardControlsProps {
 }
 
 export function DashboardControls({
-  role,
+  view,
   cities,
   gran,
   vars,
@@ -32,7 +32,7 @@ export function DashboardControls({
     >
       <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <h2 className='text-lg font-semibold'>Controls</h2>
-        <RoleToggle role={role} />
+        <ViewToggle view={view} />
       </div>
       <FilterBar
         selectedCities={cities}

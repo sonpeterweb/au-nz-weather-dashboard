@@ -45,27 +45,27 @@ test.describe('Weather Dashboard', () => {
     ).toBeVisible();
     await expect(page.getByLabel('Dashboard controls')).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Manager View' })
+      page.getByRole('heading', { name: 'Summary', exact: true })
     ).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'Auckland, NZ' })
     ).toBeVisible();
   });
 
-  test('role toggle switches between Manager and Analyst views', async ({
+  test('view toggle switches between Summary and Charts views', async ({
     page,
   }) => {
-    await page.goto('/dashboard?role=manager');
+    await page.goto('/dashboard?view=summary');
 
     await expect(
-      page.getByRole('heading', { name: 'Manager View' })
+      page.getByRole('heading', { name: 'Summary', exact: true })
     ).toBeVisible();
     await expect(page.getByText('Avg temp')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Analyst' }).click();
-    await expect(page).toHaveURL(/role=analyst/);
+    await page.getByRole('button', { name: 'Charts' }).click();
+    await expect(page).toHaveURL(/view=charts/);
     await expect(
-      page.getByRole('heading', { name: 'Analyst View' })
+      page.getByRole('heading', { name: 'Charts', exact: true })
     ).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'Temperature' })
@@ -73,7 +73,7 @@ test.describe('Weather Dashboard', () => {
   });
 
   test('filters update dashboard content and URL', async ({ page }) => {
-    await page.goto('/dashboard?role=analyst');
+    await page.goto('/dashboard?view=charts');
 
     await page.getByLabel('Sydney, AU').click();
     await expect(page).toHaveURL(/city=.*sydney/);
@@ -85,10 +85,10 @@ test.describe('Weather Dashboard', () => {
 
   test('URL parameters restore dashboard state', async ({ page }) => {
     await page.goto(
-      '/dashboard?role=analyst&city=auckland,sydney&gran=hourly&vars=temperature_2m,precipitation'
+      '/dashboard?view=charts&city=auckland,sydney&gran=hourly&vars=temperature_2m,precipitation'
     );
 
-    await expect(page.getByRole('button', { name: 'Analyst' })).toHaveAttribute(
+    await expect(page.getByRole('button', { name: 'Charts' })).toHaveAttribute(
       'aria-pressed',
       'true'
     );
@@ -100,7 +100,7 @@ test.describe('Weather Dashboard', () => {
     ).toBeChecked();
     await expect(page.getByLabel('Data granularity')).toHaveValue('hourly');
     await expect(
-      page.getByRole('heading', { name: 'Analyst View' })
+      page.getByRole('heading', { name: 'Charts', exact: true })
     ).toBeVisible();
   });
 
@@ -120,7 +120,7 @@ test.describe('Weather Dashboard', () => {
   });
 
   test('multiple city selection shows comparison content', async ({ page }) => {
-    await page.goto('/dashboard?role=manager&city=auckland,sydney');
+    await page.goto('/dashboard?view=summary&city=auckland,sydney');
 
     await expect(
       page.getByRole('columnheader', { name: 'City' })
@@ -137,10 +137,10 @@ test.describe('Weather Dashboard', () => {
     const { start, end } = getUpcomingDateRange();
     await page.goto(`/dashboard?start=${start}&end=${end}`);
 
-    await expect(page.getByLabel('Start date')).toHaveValue(start);
-    await expect(page.getByLabel('End date')).toHaveValue(end);
+    await expect(page.getByLabel('Date range calendar')).toBeVisible();
+    await expect(page.getByText(/Date range/i)).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Manager View' })
+      page.getByRole('heading', { name: 'Summary', exact: true })
     ).toBeVisible();
   });
 
@@ -165,15 +165,15 @@ test.describe('Weather Dashboard', () => {
     await expect(page.getByText(/exceeds maximum of 30 days/i)).toBeVisible();
   });
 
-  test('supports keyboard navigation for role toggle', async ({ page }) => {
-    await page.goto('/dashboard?role=manager');
+  test('supports keyboard navigation for view toggle', async ({ page }) => {
+    await page.goto('/dashboard?view=summary');
 
-    await page.getByRole('button', { name: 'Analyst' }).focus();
+    await page.getByRole('button', { name: 'Charts' }).focus();
     await page.keyboard.press('Enter');
 
-    await expect(page).toHaveURL(/role=analyst/);
+    await expect(page).toHaveURL(/view=charts/);
     await expect(
-      page.getByRole('heading', { name: 'Analyst View' })
+      page.getByRole('heading', { name: 'Charts', exact: true })
     ).toBeVisible();
   });
 });
@@ -185,7 +185,7 @@ test.describe('Weather Dashboard mobile', () => {
 
     await expect(page.getByLabel('Dashboard controls')).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Manager View' })
+      page.getByRole('heading', { name: 'Summary', exact: true })
     ).toBeVisible();
   });
 });

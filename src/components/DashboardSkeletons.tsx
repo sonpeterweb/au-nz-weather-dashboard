@@ -1,4 +1,4 @@
-import type { DashboardRole } from '@/lib/dashboard-params';
+import type { DashboardView } from '@/lib/dashboard-params';
 
 import { Skeleton } from '@/components/Skeleton';
 
@@ -69,10 +69,10 @@ export function ChartsSkeleton() {
 }
 
 interface WeatherContentSkeletonProps {
-  role: DashboardRole;
+  view: DashboardView;
 }
 
-export function WeatherContentSkeleton({ role }: WeatherContentSkeletonProps) {
+export function WeatherContentSkeleton({ view }: WeatherContentSkeletonProps) {
   return (
     <section
       className='space-y-4 animate-pulse'
@@ -80,7 +80,7 @@ export function WeatherContentSkeleton({ role }: WeatherContentSkeletonProps) {
       aria-busy='true'
     >
       <Skeleton className='h-6 w-36' />
-      {role === 'manager' ? <KpiCardsSkeleton /> : <ChartsSkeleton />}
+      {view === 'summary' ? <KpiCardsSkeleton /> : <ChartsSkeleton />}
     </section>
   );
 }
@@ -97,7 +97,7 @@ export function DashboardPageSkeleton() {
           <Skeleton className='h-10 w-32' />
         </header>
         <ControlsSkeleton />
-        <WeatherContentSkeleton role='manager' />
+        <WeatherContentSkeleton view='summary' />
       </div>
     </main>
   );

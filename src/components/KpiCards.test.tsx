@@ -59,7 +59,35 @@ describe('KpiCards', () => {
     expect(screen.getByText('Alerts')).toBeInTheDocument();
     expect(screen.getByText('Temperature')).toBeInTheDocument();
     expect(screen.getByText('Rainfall')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Heavy rainfall: 55.0mm\/day/i)
+    ).toBeInTheDocument();
     expect(screen.getByText('Wind')).toBeInTheDocument();
+    expect(screen.getByText(/Strong winds: 30.0km\/h/i)).toBeInTheDocument();
+  });
+
+  it('displays rainfall and wind alerts for hourly data', () => {
+    const hourlyAlertData: HourlyResp = {
+      hourly: {
+        time: ['2025-01-21T00:00', '2025-01-21T01:00', '2025-01-21T02:00'],
+        temperature_2m: [20, 22, 24],
+        precipitation: [20, 20, 15],
+        windspeed_10m: [10, 30, 20],
+      },
+    };
+
+    render(
+      <KpiCards
+        cities={[{ id: 'auckland', label: 'Auckland', data: hourlyAlertData }]}
+        gran='hourly'
+      />
+    );
+
+    expect(screen.getByText('Rainfall')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Heavy rainfall: 55.0mm\/day/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Strong winds: 30.0km\/h/i)).toBeInTheDocument();
   });
 
   it('renders comparison table for multiple cities', () => {

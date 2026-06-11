@@ -1,10 +1,10 @@
 # AU/NZ Weather Dashboard
 
-A Next.js weather dashboard for monitoring conditions across Australia and New Zealand. It provides a Manager view with KPI cards and alerts, and an Analyst view with interactive charts — all driven by shareable URL filters.
+A Next.js weather dashboard for monitoring conditions across Australia and New Zealand. It provides a Summary view with KPI cards and alerts, and a Charts view with interactive visualizations — all driven by shareable URL filters.
 
 ## Features
 
-- Manager and Analyst views with URL-based state (`role`, `city`, `gran`, `vars`, `start`, `end`)
+- Summary and Charts views with URL-based state (`view`, `city`, `gran`, `vars`, `start`, `end`)
 - Open-Meteo API integration with AU/NZ coordinate validation and retry logic
 - DaisyUI + Tailwind CSS with light, dark, and cupcake themes
 - Recharts visualizations for temperature, rainfall, and wind
@@ -45,9 +45,9 @@ pnpm typecheck      # TypeScript check
 
 ```
 /dashboard
-/dashboard?role=analyst&city=auckland,sydney
-/dashboard?role=manager&gran=daily&city=wellington
-/dashboard?role=analyst&vars=temperature_2m,precipitation&start=2026-06-08&end=2026-06-15
+/dashboard?view=charts&city=auckland,sydney
+/dashboard?view=summary&gran=daily&city=wellington
+/dashboard?view=charts&vars=temperature_2m,precipitation&start=2026-06-08&end=2026-06-15
 ```
 
 ## Project structure
