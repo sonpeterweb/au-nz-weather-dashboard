@@ -13,7 +13,7 @@ A portfolio-grade weather dashboard for monitoring conditions across Australia a
 | **Stack**        | Next.js 15 · React 19 · TypeScript · Tailwind CSS 4 · DaisyUI · Recharts · Zod   |
 | **Architecture** | Server Components, API proxy with ISR (5 min), dynamic chart imports             |
 | **State**        | URL-driven filters — bookmarkable, shareable dashboard views                     |
-| **Quality**      | 207 unit/component tests · ~96% statement coverage · Playwright E2E · CI on push |
+| **Quality**      | 209 unit/component tests · ~96% statement coverage · Playwright E2E · CI on push |
 | **UX**           | Light / dark / cupcake themes · skeleton loading · accessible error states       |
 
 ## Features
