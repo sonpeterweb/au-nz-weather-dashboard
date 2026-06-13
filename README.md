@@ -27,7 +27,11 @@ A portfolio-grade weather dashboard for monitoring conditions across Australia a
 
 ## Screenshots
 
-_Add 2–3 screenshots or a short GIF here — Summary view, Charts view, and mobile layout work well for Upwork._
+![Dashboard demo — toggle views, filter cities, and share URL](docs/screenshots/weather-dashboard.gif)
+
+|                                        Summary                                        |                                          Charts                                          |                                      Mobile                                      |
+| :-----------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
+| ![Summary view with multi-city KPIs and alerts](docs/screenshots/summary-desktop.png) | ![Charts view with temperature, rainfall, and wind](docs/screenshots/charts-desktop.png) | ![Mobile layout with filters and dashboard content](docs/screenshots/mobile.png) |
 
 ## Quick start
 
@@ -53,12 +57,6 @@ Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
 | `pnpm lighthouse`    | Lighthouse audit (`LIGHTHOUSE_URL` defaults to local dev server) |
 | `pnpm lint:strict`   | ESLint with zero warnings                                        |
 | `pnpm typecheck`     | TypeScript check                                                 |
-
-Audit production:
-
-```bash
-LIGHTHOUSE_URL=https://au-nz-weather-dashboard.vercel.app/dashboard pnpm lighthouse
-```
 
 ## URL examples
 
