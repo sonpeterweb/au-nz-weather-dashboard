@@ -4,6 +4,8 @@ A portfolio-grade weather dashboard for monitoring conditions across Australia a
 
 > **Live demo:** [https://au-nz-weather-dashboard.vercel.app](https://au-nz-weather-dashboard.vercel.app)
 
+> **Lighthouse (production):** Performance 95 · Accessibility 97 · Best Practices 100 · SEO 91
+
 ## Highlights
 
 | Area             | Details                                                                          |
@@ -41,16 +43,22 @@ Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard).
 
 ### Scripts
 
-| Command              | Description                               |
-| -------------------- | ----------------------------------------- |
-| `pnpm dev`           | Development server                        |
-| `pnpm build`         | Production build                          |
-| `pnpm test`          | Jest unit and component tests             |
-| `pnpm test:coverage` | Tests with 80% coverage thresholds        |
-| `pnpm test:e2e`      | Playwright end-to-end tests               |
-| `pnpm lighthouse`    | Lighthouse audit (server must be running) |
-| `pnpm lint:strict`   | ESLint with zero warnings                 |
-| `pnpm typecheck`     | TypeScript check                          |
+| Command              | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`           | Development server                                               |
+| `pnpm build`         | Production build                                                 |
+| `pnpm test`          | Jest unit and component tests                                    |
+| `pnpm test:coverage` | Tests with 80% coverage thresholds                               |
+| `pnpm test:e2e`      | Playwright end-to-end tests                                      |
+| `pnpm lighthouse`    | Lighthouse audit (`LIGHTHOUSE_URL` defaults to local dev server) |
+| `pnpm lint:strict`   | ESLint with zero warnings                                        |
+| `pnpm typecheck`     | TypeScript check                                                 |
+
+Audit production:
+
+```bash
+LIGHTHOUSE_URL=https://au-nz-weather-dashboard.vercel.app/dashboard pnpm lighthouse
+```
 
 ## URL examples
 
