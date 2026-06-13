@@ -1,9 +1,7 @@
-'use client'; // Error components must be Client Components
+'use client';
 
+import Link from 'next/link';
 import * as React from 'react';
-import { RiAlarmWarningFill } from 'react-icons/ri';
-
-import TextButton from '@/components/buttons/TextButton';
 
 export default function Error({
   error,
@@ -18,21 +16,23 @@ export default function Error({
   }, [error]);
 
   return (
-    <main>
-      <section className='bg-white'>
-        <div className='layout flex min-h-screen flex-col items-center justify-center text-center text-black'>
-          <RiAlarmWarningFill
-            size={60}
-            className='drop-shadow-glow animate-flicker text-red-500'
-          />
-          <h1 className='mt-8 text-4xl md:text-6xl'>
-            Oops, something went wrong!
-          </h1>
-          <TextButton variant='basic' onClick={reset} className='mt-4'>
-            Try again
-          </TextButton>
-        </div>
-      </section>
+    <main className='container mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 py-12 text-center'>
+      <p className='text-6xl font-bold text-error/30' aria-hidden='true'>
+        !
+      </p>
+      <h1 className='mt-4 text-3xl font-bold'>Something went wrong</h1>
+      <p className='mt-2 max-w-md text-base-content/70'>
+        An unexpected error occurred while loading this page. Please try again
+        or return to the dashboard.
+      </p>
+      <div className='mt-8 flex flex-wrap items-center justify-center gap-3'>
+        <button type='button' onClick={reset} className='btn btn-primary'>
+          Try again
+        </button>
+        <Link href='/dashboard' className='btn btn-outline'>
+          Go to dashboard
+        </Link>
+      </div>
     </main>
   );
 }

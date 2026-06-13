@@ -35,11 +35,20 @@ export const metadata: Metadata = {
     siteName: siteConfig.title,
     type: 'website',
     locale: 'en_US',
+    images: [
+      {
+        url: '/images/og.jpg',
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.title} — AU/NZ weather monitoring dashboard`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.title,
     description: siteConfig.description,
+    images: ['/images/og.jpg'],
   },
 };
 

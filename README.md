@@ -2,7 +2,7 @@
 
 A portfolio-grade weather dashboard for monitoring conditions across Australia and New Zealand. Built with Next.js App Router, it pairs a **Summary** view (KPI cards and alerts) with a **Charts** view (interactive Recharts visualizations), all driven by shareable URL filters.
 
-> **Live demo:** _Add your deployed URL here (e.g. Vercel)_
+> **Live demo:** [https://au-nz-weather-dashboard.vercel.app](https://au-nz-weather-dashboard.vercel.app)
 
 ## Highlights
 
