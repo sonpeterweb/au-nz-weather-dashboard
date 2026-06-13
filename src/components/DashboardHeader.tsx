@@ -1,3 +1,4 @@
+import { ShareButton } from '@/components/ShareButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { siteConfig } from '@/constant/config';
@@ -11,7 +12,10 @@ export function DashboardHeader() {
           {siteConfig.dashboardDescription}
         </p>
       </div>
-      <ThemeToggle />
+      <div className='flex flex-wrap items-center gap-2 sm:gap-3'>
+        <ShareButton />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

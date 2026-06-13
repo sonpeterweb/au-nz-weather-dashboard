@@ -48,7 +48,7 @@ async function getBaseUrl(): Promise<string> {
   }
 
   return process.env.NODE_ENV === 'production'
-    ? 'https://your-domain.com'
+    ? 'https://au-nz-weather-dashboard.vercel.app'
     : 'http://localhost:3000';
 }
 
