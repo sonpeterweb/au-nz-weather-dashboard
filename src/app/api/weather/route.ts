@@ -1,81 +1,11 @@
 import { NextResponse } from 'next/server';
 
-import { buildUrl, isValidAU_NZCoords } from '@/lib/open-meteo';
-import { ZDaily, ZHourly } from '@/lib/schema';
+import {
+  fetchOpenMeteo,
+  WEATHER_REVALIDATE_SECONDS,
+} from '@/lib/server/weather';
 
-export const revalidate = 300; // 5 min
-
-/**
- * Sleep utility for retry delays
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** Retry only transient upstream failures (rate limit / server errors). */
-function isRetryableStatus(status: number): boolean {
-  return status === 429 || status >= 500;
-}
-
-/**
- * Fetch with selective retry, backoff between attempts, and per-request timeout.
- * Retries: network/timeout errors, 429, 5xx. Does not retry other 4xx.
- */
-async function fetchWithRetry(
-  url: string,
-  {
-    maxAttempts = 3,
-    timeoutMs = 10_000,
-    // One delay per gap between attempts (3 attempts → 2 waits)
-    delays = [1000, 2000],
-  }: {
-    maxAttempts?: number;
-    timeoutMs?: number;
-    delays?: number[];
-  } = {}
-): Promise<Response> {
-  const backoff = (attempt: number) =>
-    delays[Math.min(attempt, delays.length - 1)] ?? 1000;
-
-  let lastResponse: Response | undefined;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch(url, {
-        next: { revalidate },
-        signal: controller.signal,
-      });
-
-      if (response.ok || !isRetryableStatus(response.status)) {
-        return response;
-      }
-
-      lastResponse = response;
-    } catch (error) {
-      if (attempt === maxAttempts - 1) {
-        throw error;
-      }
-      await sleep(backoff(attempt));
-      continue;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-
-    if (attempt === maxAttempts - 1) {
-      break;
-    }
-    await sleep(backoff(attempt));
-  }
-
-  if (lastResponse) {
-    return lastResponse;
-  }
-
-  throw new Error('All retry attempts failed');
-}
+export const revalidate = WEATHER_REVALIDATE_SECONDS;
 
 export async function GET(req: Request) {
   try {
@@ -88,7 +18,6 @@ export async function GET(req: Request) {
     const start = searchParams.get('start') ?? undefined;
     const end = searchParams.get('end') ?? undefined;
 
-    // Validate required parameters
     if (!latParam || !lonParam) {
       return NextResponse.json(
         { error: 'Missing required parameters: lat and lon' },
@@ -106,38 +35,39 @@ export async function GET(req: Request) {
       );
     }
 
-    if (!isValidAU_NZCoords({ lat, lon })) {
-      return NextResponse.json(
-        {
-          error: 'Coordinates must be within Australia or New Zealand bounds',
-        },
-        { status: 400 }
-      );
-    }
-
     const vars = varsParam?.split(',').filter(Boolean);
 
-    const url = buildUrl({ lat, lon }, gran, { vars, start, end });
+    const result = await fetchOpenMeteo({
+      lat,
+      lon,
+      gran,
+      vars,
+      start,
+      end,
+    });
 
-    const res = await fetchWithRetry(url);
+    if (!result.ok) {
+      if (result.error === 'invalid_schema') {
+        return NextResponse.json(
+          { error: result.message, details: result.details },
+          { status: result.status }
+        );
+      }
 
-    if (!res.ok) {
-      return NextResponse.json({ error: 'Upstream error' }, { status: 502 });
-    }
+      if (result.error === 'network') {
+        return NextResponse.json(
+          { error: 'Failed to fetch weather data', message: result.message },
+          { status: result.status }
+        );
+      }
 
-    const data = await res.json();
-
-    const parsed =
-      gran === 'hourly' ? ZHourly.safeParse(data) : ZDaily.safeParse(data);
-
-    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Invalid schema', details: parsed.error.errors },
-        { status: 500 }
+        { error: result.message },
+        { status: result.status }
       );
     }
 
-    return NextResponse.json(parsed.data);
+    return NextResponse.json(result.data);
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(

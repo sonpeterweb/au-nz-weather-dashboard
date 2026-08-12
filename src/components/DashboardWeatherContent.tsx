@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import { headers } from 'next/headers';
 
 import type {
   DashboardGranularity,
@@ -7,6 +6,7 @@ import type {
 } from '@/lib/dashboard-params';
 import { getLocationById } from '@/lib/locations';
 import type { DailyResp, HourlyResp } from '@/lib/schema';
+import { fetchOpenMeteo } from '@/lib/server/weather';
 
 import { ChartsSkeleton } from '@/components/DashboardSkeletons';
 import { ErrorMessage, ErrorMessageList } from '@/components/ErrorMessage';
@@ -34,24 +34,6 @@ interface CityFetchResult {
   data?: CityWeatherData;
 }
 
-async function getBaseUrl(): Promise<string> {
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL;
-  }
-
-  const headersList = await headers();
-  const host = headersList.get('host');
-
-  if (host) {
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    return `${protocol}://${host}`;
-  }
-
-  return process.env.NODE_ENV === 'production'
-    ? 'https://au-nz-weather-dashboard.vercel.app'
-    : 'http://localhost:3000';
-}
-
 async function fetchCityWeather(
   cityId: string,
   gran: DashboardGranularity,
@@ -64,39 +46,28 @@ async function fetchCityWeather(
     return { cityId, status: 'fetch_failed' };
   }
 
-  const qs = new URLSearchParams({
-    lat: String(location.lat),
-    lon: String(location.lon),
+  const result = await fetchOpenMeteo({
+    lat: location.lat,
+    lon: location.lon,
     gran,
-    vars: vars.join(','),
+    vars,
     start,
     end,
   });
 
-  const url = `${await getBaseUrl()}/api/weather?${qs.toString()}`;
-
-  try {
-    const response = await fetch(url, {
-      next: { revalidate: 300 },
-    });
-
-    if (!response.ok) {
-      return { cityId, status: 'fetch_failed' };
-    }
-
-    const data = await response.json();
-    return {
-      cityId,
-      status: 'success',
-      data: {
-        id: cityId,
-        label: location.label,
-        data: data as HourlyResp | DailyResp,
-      },
-    };
-  } catch {
+  if (!result.ok) {
     return { cityId, status: 'fetch_failed' };
   }
+
+  return {
+    cityId,
+    status: 'success',
+    data: {
+      id: cityId,
+      label: location.label,
+      data: result.data,
+    },
+  };
 }
 
 interface DashboardWeatherContentProps {

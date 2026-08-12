@@ -30,6 +30,7 @@ const customJestConfig = {
     'src/lib/schema.ts',
     'src/lib/theme.ts',
     'src/lib/utils.ts',
+    'src/lib/server/weather.ts',
     'src/app/api/weather/**/*.{ts,tsx}',
     'src/components/AlertBadge.tsx',
     'src/components/ErrorMessage.tsx',
