@@ -1,6 +1,6 @@
 # AU/NZ Weather Dashboard
 
-A portfolio-grade weather dashboard for monitoring conditions across Australia and New Zealand. Built with Next.js App Router, it pairs a **Summary** view (KPI cards and alerts) with a **Charts** view (interactive Recharts visualizations), all driven by shareable URL filters.
+An interactive weather analytics dashboard for comparing conditions across Australia and New Zealand. Built with Next.js App Router, it pairs a **Summary** view (KPI cards and alerts) with a **Charts** view (interactive Recharts visualizations), all driven by shareable URL filters.
 
 > **Live demo:** [https://au-nz-weather-dashboard.vercel.app](https://au-nz-weather-dashboard.vercel.app)
 
@@ -97,4 +97,4 @@ scripts/                # Lighthouse audit script
 
 ## License
 
-Private project — portfolio use.
+MIT

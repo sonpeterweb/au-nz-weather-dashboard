@@ -257,10 +257,10 @@ describe('/api/weather route', () => {
       jest.useRealTimers();
     });
 
-    it('should retry on failed fetch (non-ok response) and succeed on third attempt', async () => {
+    it('should retry on 5xx and succeed on third attempt', async () => {
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: false, status: 500 })
-        .mockResolvedValueOnce({ ok: false, status: 500 })
+        .mockResolvedValueOnce({ ok: false, status: 502 })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockValidHourlyResponse,
@@ -276,8 +276,64 @@ describe('/api/weather route', () => {
 
       const response = await GET(req);
       expect(response.status).toBe(200);
-      // Verify fetch was called 3 times (initial + 2 retries)
       expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('should retry on 429 and succeed on second attempt', async () => {
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ ok: false, status: 429 })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockValidHourlyResponse,
+        });
+      (ZHourly.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: mockValidHourlyResponse,
+      });
+
+      const req = createMockRequest(
+        'http://localhost/api/weather?lat=-36.8509&lon=174.7645'
+      );
+
+      const response = await GET(req);
+      expect(response.status).toBe(200);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not retry on 400 Bad Request', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+      });
+
+      const req = createMockRequest(
+        'http://localhost/api/weather?lat=-36.8509&lon=174.7645'
+      );
+
+      const response = await GET(req);
+      const data = await response.json();
+
+      expect(response.status).toBe(502);
+      expect(data.error).toBe('Upstream error');
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not retry on 404', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      const req = createMockRequest(
+        'http://localhost/api/weather?lat=-36.8509&lon=174.7645'
+      );
+
+      const response = await GET(req);
+      const data = await response.json();
+
+      expect(response.status).toBe(502);
+      expect(data.error).toBe('Upstream error');
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
     it('should retry on fetch error (network error) and succeed on third attempt', async () => {
@@ -299,11 +355,10 @@ describe('/api/weather route', () => {
 
       const response = await GET(req);
       expect(response.status).toBe(200);
-      // Verify fetch was called 3 times (initial + 2 retries)
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
-    it('should return 502 after all retries fail', async () => {
+    it('should return 502 after all network retries fail', async () => {
       (global.fetch as jest.Mock)
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
@@ -318,11 +373,10 @@ describe('/api/weather route', () => {
 
       expect(response.status).toBe(502);
       expect(data.error).toContain('Failed to fetch weather data');
-      // Verify fetch was called 3 times (initial + 2 retries)
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
-    it('should retry up to 3 times total', async () => {
+    it('should retry 5xx up to 3 times total then return upstream error', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 500,
@@ -336,10 +390,31 @@ describe('/api/weather route', () => {
       const data = await response.json();
 
       expect(response.status).toBe(502);
-      // After all retries fail, fetchWithRetry throws an error which is caught
-      expect(data.error).toBe('Failed to fetch weather data');
-      // Verify fetch was called exactly 3 times (initial + 2 retries)
+      expect(data.error).toBe('Upstream error');
       expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('should pass an AbortSignal timeout to fetch', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockValidHourlyResponse,
+      });
+      (ZHourly.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: mockValidHourlyResponse,
+      });
+
+      const req = createMockRequest(
+        'http://localhost/api/weather?lat=-36.8509&lon=174.7645'
+      );
+      await GET(req);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          signal: expect.any(AbortSignal),
+        })
+      );
     });
   });
 
@@ -351,7 +426,7 @@ describe('/api/weather route', () => {
       );
     });
 
-    it('should return 502 when upstream API returns non-ok response after retries', async () => {
+    it('should return 502 when upstream API keeps returning 5xx after retries', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 500,
@@ -365,9 +440,7 @@ describe('/api/weather route', () => {
       const data = await response.json();
 
       expect(response.status).toBe(502);
-      // After all retries fail, fetchWithRetry throws an error which is caught
-      expect(data.error).toBe('Failed to fetch weather data');
-      // Verify retries happened
+      expect(data.error).toBe('Upstream error');
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 

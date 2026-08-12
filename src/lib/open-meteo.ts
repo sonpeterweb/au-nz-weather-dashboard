@@ -32,7 +32,6 @@ export function buildUrl(
   granularity: Granularity,
   params: BuildUrlParams = {}
 ): string {
-  // Validate coordinates are within AU/NZ bounds
   if (!isValidAU_NZCoords({ lat, lon })) {
     throw new Error(
       'Coordinates must be within Australia or New Zealand bounds'
