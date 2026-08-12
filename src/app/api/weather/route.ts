@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 
-import {
-  fetchOpenMeteo,
-  WEATHER_REVALIDATE_SECONDS,
-} from '@/lib/server/weather';
+import { fetchOpenMeteo } from '@/lib/server/weather';
 
-export const revalidate = WEATHER_REVALIDATE_SECONDS;
+// Must be a literal — Next.js segment config is statically analyzed
+export const revalidate = 300;
 
 export async function GET(req: Request) {
   try {
